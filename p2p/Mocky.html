@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mock Interview Studio — Full 4-Round Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Theme tokens ---------- */
+  :root{
+    --bg:#0b1220; --card:#071024; --muted:#9aa4b2; --accent:#6ee7b7; --glass: rgba(255,255,255,0.03);
+    --glass-2: rgba(255,255,255,0.02); --text:#e6eef6;
+  }
+  [data-theme="light"]{
+    --bg:#f6f9fc; --card:#ffffff; --muted:#556270; --accent:#0ea5a0; --glass: rgba(2,6,23,0.03);
+    --glass-2: rgba(2,6,23,0.02); --text:#071221;
+  }
+
+  /* ---------- Base ---------- */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    background:
+      radial-gradient(1200px 400px at 8% 8%, rgba(110,231,183,0.03), transparent),
+      linear-gradient(180deg, rgba(255,255,255,0.01), transparent 20%),
+      var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    padding:26px;
+    transition:background .45s, color .3s;
+  }
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:800;color:#04293a}
+  h1{margin:0;font-size:1.15rem}
+  h2{margin:0 0 6px 0}
+  .subtitle{color:var(--muted);font-size:0.9rem}
+
+  .controls{display:flex;gap:10px;align-items:center}
+  .btn{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;color:inherit;font-weight:600;cursor:pointer;backdrop-filter: blur(6px);transition:transform .15s ease}
+  .btn:hover{transform:translateY(-3px)}
+  .badge{padding:6px 10px;border-radius:999px;background:var(--glass-3);font-weight:700;color:var(--muted);font-size:0.82rem}
+  .muted{color:var(--muted)}
+
+  /* ---------- Layout ---------- */
+  main{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+  @media (max-width:980px){ main{grid-template-columns:1fr} header{flex-direction:column;align-items:flex-start} }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{background:linear-gradient(180deg,var(--card), transparent);border-radius:14px;padding:14px;min-height:360px;box-shadow:0 10px 34px rgba(2,6,23,0.35);border:1px solid rgba(255,255,255,0.03);position:sticky;top:18px}
+  .domain-list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .domain-btn{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent)}
+  .domain-selected{box-shadow:0 8px 24px rgba(2,6,23,0.28); border:1px solid rgba(110,231,183,0.12); background: linear-gradient(90deg, rgba(110,231,183,0.03), transparent) !important}
+
+  .progress-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .round-pill{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:1px dashed rgba(255,255,255,0.03);background:var(--glass-2)}
+  .round-pill.locked{opacity:.5}
+
+  /* ---------- Workspace ---------- */
+  .workspace{display:flex;flex-direction:column;gap:14px}
+  .card{border-radius:14px;padding:18px;background:linear-gradient(180deg,var(--card),transparent);border:1px solid rgba(255,255,255,0.03);box-shadow:0 12px 30px rgba(2,6,23,0.28)}
+  .round-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media (max-width:980px){ .round-cards{grid-template-columns:1fr} }
+  .round-card{padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:10px;min-height:120px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+  .tiny{font-size:0.85rem;color:var(--muted)}
+
+  /* ---------- Question area ---------- */
+  .question-area{display:flex;gap:16px;align-items:flex-start;flex-direction:column}
+  .question-box{width:100%;padding:16px;border-radius:12px;background:var(--glass);border:1px solid rgba(255,255,255,0.03)}
+  .answers{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+  .option{padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);cursor:pointer;background:linear-gradient(90deg, rgba(255,255,255,0.01), transparent);display:flex;align-items:center;gap:12px;justify-content:space-between;transition:transform .12s}
+  .option:hover{transform:translateX(6px)}
+  .option.correct{border-color:rgba(110,231,183,0.35);box-shadow:0 8px 18px rgba(110,231,183,0.05)}
+  .option.wrong{border-color:rgba(255,99,132,0.22);opacity:.95}
+
+  /* ---------- Coding ---------- */
+  .code-area{display:flex;gap:14px;flex-wrap:wrap}
+  textarea.code{width:100%;min-height:210px;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.04);font-family:monospace;font-size:13px;background:rgba(0,0,0,0.04);color:inherit}
+  .terminal{background:#020617;padding:12px;border-radius:10px;color:#cde;text-align:left;min-height:80px;overflow:auto}
+
+  iframe#programiz{width:100%;height:420px;border:0;border-radius:10px}
+
+  /* ---------- Buttons & tiny polish ---------- */
+  .controls-row{display:flex;gap:12px;align-items:center;margin-top:12px}
+  .voice-btn{display:inline-flex;align-items:center;gap:10px;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+  .center{display:flex;align-items:center;justify-content:center}
+
+  /* ---------- Footer ---------- */
+  footer{margin-top:18px;color:var(--muted);font-size:0.9rem;text-align:center}
+
+  /* ---------- Animations ---------- */
+  @keyframes floaty { from{transform:translateY(8px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .floaty{animation:floaty .6s ease both}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">MI</div>
+    <div>
+      <h1>Mock Interview Studio</h1>
+      <div class="subtitle">Aptitude → Technical → Coding → HR — professional UI, voice & Programiz</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="badge" id="overallScore">Score: 0</div>
+    <div class="btn" id="themeToggle" title="Toggle theme">🌙 Theme</div>
+    <button class="btn" id="resetBtn" title="Reset progress">Reset</button>
+  </div>
+</header>
+
+<main>
+  <aside class="sidebar">
+    <h3 style="margin:0">Choose domain</h3>
+    <div class="domain-list" id="domainList"></div>
+
+    <div style="margin-top:14px">
+      <h4 style="margin:0">Progress</h4>
+      <div class="progress-list">
+        <div class="round-pill" data-round="1"><div>Aptitude</div><div class="tiny" id="scoreA">0</div></div>
+        <div class="round-pill locked" data-round="2"><div>Technical</div><div class="tiny" id="scoreT">0</div></div>
+        <div class="round-pill locked" data-round="3"><div>Coding</div><div class="tiny" id="scoreC">0</div></div>
+        <div class="round-pill locked" data-round="4"><div>HR</div><div class="tiny" id="scoreH">0</div></div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <small class="muted">Questions are randomized and won't repeat across sessions per domain. Use "Shuffle" to regenerate order.</small>
+      <div style="margin-top:8px">
+        <button class="btn" id="shuffleBtn">Shuffle pools</button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="workspace">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h2 id="roundTitle">Welcome</h2>
+          <div class="muted" id="roundDesc">Select a domain and start with the Aptitude round.</div>
+        </div>
+        <div style="text-align:right">
+          <small class="muted">Round status</small>
+          <div style="margin-top:6px"><span id="roundState" class="badge">Not started</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="round-cards">
+      <div class="card round-card floaty">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong>Aptitude</strong>
+            <div class="tiny muted">Logic & reasoning — MCQs</div>
+          </div>
+          <div>
+            <button class="btn" id="startA">Start</button>
+            <div class="tiny muted" style="margin-top:6px">Pass: 60%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card round-card floaty">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong>Technical</strong>
+            <div class="tiny muted">Domain-specific MCQs</div>
+          </div>
+          <div>
+            <button class="btn" id="startT" disabled>Start</button>
+            <div class="tiny muted" style="margin-top:6px">Pass: 60%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card round-card floaty">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong>Coding</strong>
+            <div class="tiny muted">Write & Run (Programiz) — paste output to validate</div>
+          </div>
+          <div>
+            <button class="btn" id="startC" disabled>Start</button>
+            <div class="tiny muted" style="margin-top:6px">Pass: Provide correct output</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card round-card floaty">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <strong>HR</strong>
+            <div class="tiny muted">Open answers; voice-enabled</div>
+          </div>
+          <div>
+            <button class="btn" id="startH" disabled>Start</button>
+            <div class="tiny muted" style="margin-top:6px">Pass: 70%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE AREA -->
+    <div class="card" id="activeArea" style="min-height:320px">
+      <div id="areaContent">
+        <h3>Get started</h3>
+        <p class="muted">Pick a domain from the left and click <strong>Start</strong> on the Aptitude card. Questions are randomized without repetition per domain and saved locally.</p>
+        <div style="margin-top:12px;display:flex;gap:12px;align-items:center">
+          <select id="domainSelect" class="btn" style="padding:8px;border-radius:10px">
+            <option value="">Choose domain</option>
+          </select>
+          <div class="tiny muted">Use the site in a Chromium browser for best Speech API support.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODING AREA (hidden until coding round) -->
+    <div class="card" id="codingCard" style="display:none">
+      <h3>Coding Round — Problem & Programiz</h3>
+      <div class="muted tiny">Write code in Programiz (iframe) and run it there. Then paste the program output below to validate automatically.</div>
+
+      <div style="margin-top:12px;display:flex;gap:14px;flex-wrap:wrap">
+        <div style="flex:1;min-width:320px">
+          <div class="question-box">
+            <strong id="codingProblemTitle">Problem: Palindrome</strong>
+            <p id="codingProblem" class="tiny muted" style="margin-top:8px">Write a function <code>solution(s)</code> that returns <code>True</code> if <code>s</code> is a palindrome (example: <code>solution("aba") → True</code>). Print the result exactly as <code>True</code> or <code>False</code>.</p>
+            <div style="margin-top:10px">
+              <small class="muted">Example testcases (for you):</small>
+              <pre class="terminal" style="background:transparent;padding:8px;border-radius:8px">input: "aba"  → True
+input: "abc"  → False
+</pre>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label class="tiny muted">Paste Programiz output (exact):</label>
+            <input id="programizOutput" class="btn" style="width:100%;padding:10px;border-radius:8px;margin-top:8px" placeholder='e.g. True'>
+            <div style="display:flex;gap:10px;margin-top:8px">
+              <button class="btn" id="verifyOutput">Verify Output</button>
+              <button class="btn" id="copyExample">Copy Example Code</button>
+              <div class="tiny muted">If valid, Coding round will be marked passed automatically.</div>
+            </div>
+            <div id="verifyMsg" class="tiny" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:320px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="tiny muted">Programiz Online Compiler (embedded)</div>
+            <div>
+              <button class="btn" id="openProgramizTab">Open Programiz</button>
+            </div>
+          </div>
+          <div style="margin-top:8px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)">
+            <!-- Programiz iframe: user can paste/run code here -->
+            <iframe id="programiz" src="https://www.programiz.com/online-compiler" title="Programiz Online Compiler"></iframe>
+          </div>
+          <div class="tiny muted" style="margin-top:8px">Tip: paste code into Programiz, run tests, then paste the console output above.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HR AREA (hidden) -->
+    <div class="card" id="hrCardArea" style="display:none">
+      <h3>HR Round — Voice-enabled</h3>
+      <div class="muted tiny">Answer open questions by typing or using voice. We'll auto-evaluate using simple heuristics (keyword match & length) for demo purposes.</div>
+
+      <div id="hrQuestionArea" style="margin-top:12px"></div>
+      <div style="margin-top:12px">
+        <button class="btn" id="submitHR">Submit HR answers</button>
+      </div>
+    </div>
+
+    <footer>Built with local question pools, Web Speech API, and an embedded Programiz iframe for running code.</footer>
+  </section>
+</main>
+
+<script>
+/* ========= Configuration ========= */
+const QUESTION_POOLS = {
+  "Data Scientist": {
+    aptitude: [
+      { q: "If a fair coin is flipped 3 times, probability of exactly 2 heads?", options:["1/4","1/2","3/8","3/4"], a:2 },
+      { q: "Mean of 2,5,8,11 is?", options:["6","7","8","9"], a:1 },
+      { q: "2 + 3 × 4 = ?", options:["20","14","10","12"], a:1 }
+    ],
+    technical: [
+      { q: "Which algorithm commonly used for classification trees?", options:["KNN","Decision Tree","K-Means","Apriori"], a:1 },
+      { q: "Which library is for numerical computing in Python?", options:["matplotlib","pandas","numpy","flask"], a:2 }
+    ],
+    coding: [
+      // coding round uses separate problem text; we keep simple placeholder
+    ],
+    hr: [
+      { q: "Tell me about a time you handled conflicting priorities.", type:"open", keywords:["priorit", "plan", "communicat"] },
+      { q: "Why do you want to work in data science?", type:"open", keywords:["data", "models", "impact"] }
+    ]
+  },
+  "Web Development": {
+    aptitude: [
+      { q: "If 5 workers take 10 days, how many days for 10 workers (same rate)?", options:["10","5","2","20"], a:1 },
+      { q: "What is 12% of 200?", options:["18","24","12","20"], a:1 },
+      { q: "Which is prime?", options:["15","21","23","27"], a:2 }
+    ],
+    technical: [
+      { q: "Which tag defines a hyperlink in HTML?", options:["<img>","<a>","<href>","<link>"], a:1 },
+      { q: "Which CSS property controls flex layout?", options:["display","flex-direction","align-items","justify-content"], a:0 }
+    ],
+    hr: [
+      { q: "Tell me about a project you are proud of.", type:"open", keywords:["project","built","led"] },
+      { q: "How do you handle tight deadlines?", type:"open", keywords:["priorit","communicat","plan"] }
+    ]
+  },
+  "Software Engineering": {
+    aptitude: [
+      { q: "LCM of 4 and 6 is?", options:["6","12","24","10"], a:1 },
+      { q: "If x+2=7 then x=?", options:["5","3","9","-5"], a:0 },
+      { q: "100 divided by 4 equals?", options:["20","25","30","24"], a:1 }
+    ],
+    technical: [
+      { q: "Which is NOT OOP concept?", options:["Inheritance","Encapsulation","Polymorphism","SQL"], a:3 },
+      { q: "Which sorts worst-case O(n log n)?", options:["QuickSort","MergeSort","BubbleSort","InsertionSort"], a:1 }
+    ],
+    hr: [
+      { q: "Describe how you approach debugging.", type:"open", keywords:["logs","hypothesi","test"] },
+      { q: "How do you design scalable software?", type:"open", keywords:["scale","performance","decouple"] }
+    ]
+  },
+  "Machine Learning": {
+    aptitude: [
+      { q: "If dataset has 1000 rows and you sample 10%, how many rows?", options:["10","100","1000","900"], a:1 },
+      { q: "Which measures true positives among predicted positives?", options:["Precision","Recall","Accuracy","F1"], a:0 },
+      { q: "Which is supervised learning?", options:["KMeans","PCA","LinearRegression","Apriori"], a:2 }
+    ],
+    technical: [
+      { q: "Which algorithm is used for dimensionality reduction?", options:["SVM","KNN","PCA","Naive Bayes"], a:2 },
+      { q: "Which is an activation function?", options:["ReLU","Entropy","Gini","PCA"], a:0 }
+    ],
+    hr: [
+      { q: "Explain a time you failed and what you learned.", type:"open", keywords:["learn","improv","mistake"] },
+      { q: "Where do you see yourself in 5 years?", type:"open", keywords:["grow","lead","specialis"] }
+    ]
+  }
+};
+
+const DOMAINS = Object.keys(QUESTION_POOLS);
+
+/* ========= App state ========= */
+let state = {
+  domain: null,
+  pools: {}, // shuffled pools per domain
+  indexes: {1:0,2:0,3:0,4:0},
+  scores: {1:0,2:0,3:0,4:0},
+  currentRound: 0,
+  totalPerRound: {1:3,2:2,3:1,4:2}, // how many questions used per round (adjustable)
+  passingPercent: {1:60,2:60,3:100,4:70},
+  recognition: null
+};
+
+const storageKey = (domain)=>`mi_pools_${domain.replace(/\s+/g,'_')}`;
+
+/* ========= DOM refs ========= */
+const domainListEl = document.getElementById('domainList');
+const domainSelect = document.getElementById('domainSelect');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const startA = document.getElementById('startA');
+const startT = document.getElementById('startT');
+const startC = document.getElementById('startC');
+const startH = document.getElementById('startH');
+const areaContent = document.getElementById('areaContent');
+const roundTitle = document.getElementById('roundTitle');
+const roundDesc = document.getElementById('roundDesc');
+const roundState = document.getElementById('roundState');
+const overallScore = document.getElementById('overallScore');
+const resetBtn = document.getElementById('resetBtn');
+const themeToggle = document.getElementById('themeToggle');
+
+const scoreA = document.getElementById('scoreA');
+const scoreT = document.getElementById('scoreT');
+const scoreC = document.getElementById('scoreC');
+const scoreH = document.getElementById('scoreH');
+
+const codingCard = document.getElementById('codingCard');
+const hrCardArea = document.getElementById('hrCardArea');
+const programizOutput = document.getElementById('programizOutput');
+const verifyOutputBtn = document.getElementById('verifyOutput');
+const verifyMsg = document.getElementById('verifyMsg');
+const copyExample = document.getElementById('copyExample');
+const openProgramizTab = document.getElementById('openProgramizTab');
+const hrQuestionArea = document.getElementById('hrQuestionArea');
+
+/* ========= Utilities ========= */
+function shuffle(a){ const arr=a.slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+function speak(text){ if('speechSynthesis' in window){ const s=new SpeechSynthesisUtterance(text); s.lang='en-US'; window.speechSynthesis.cancel(); window.speechSynthesis.speak(s); } }
+function persistPools(domain, pools){ localStorage.setItem(storageKey(domain), JSON.stringify(pools)); }
+function loadPools(domain){ const v=localStorage.getItem(storageKey(domain)); return v?JSON.parse(v):null; }
+function persistTheme(t){ localStorage.setItem('mi_theme', t); }
+function loadTheme(){ return localStorage.getItem('mi_theme') || 'dark'; }
+
+/* ========= Initialize UI ========= */
+function initUI(){
+  // domains list & select
+  DOMAINS.forEach(d=>{
+    const btn=document.createElement('div'); btn.className='domain-btn'; btn.textContent=d;
+    btn.onclick=()=>selectDomain(d, btn); domainListEl.appendChild(btn);
+    const opt=document.createElement('option'); opt.value=d; opt.textContent=d; domainSelect.appendChild(opt);
+  });
+
+  // theme
+  const theme=loadTheme();
+  document.documentElement.setAttribute('data-theme', theme==='light'?'light':'dark');
+  themeToggle.textContent = theme==='light' ? '☀️ Light' : '🌙 Dark';
+
+  // bind controls
+  startA.onclick=()=> startRound(1);
+  startT.onclick=()=> startRound(2);
+  startC.onclick=()=> startRound(3);
+  startH.onclick=()=> startRound(4);
+  shuffleBtn.onclick=()=>{ if(!state.domain) return alert('Select a domain first'); setupPools(state.domain,true); alert('Pools reshuffled'); };
+  domainSelect.onchange=()=>{ const v=domainSelect.value; if(v) { const nodes=domainListEl.children; for(let n of nodes) n.classList.remove('domain-selected'); for(let n of nodes) if(n.textContent===v) n.classList.add('domain-selected'); selectDomain(v); } };
+  resetBtn.onclick=resetAll;
+  themeToggle.onclick=toggleTheme;
+
+  openProgramizTab.onclick=()=> window.open('https://www.programiz.com/online-compiler','_blank');
+  verifyOutputBtn.onclick=verifyCodingOutput;
+  copyExample.onclick=copyExampleCode;
+  initSpeech();
+}
+initUI();
+
+/* ========= Domain and Pools ========= */
+function selectDomain(d, el=null){
+  state.domain=d;
+  const nodes=domainListEl.children; for(let n of nodes) n.classList.remove('domain-selected'); if(el) el.classList.add('domain-selected');
+  domainSelect.value=d;
+  // setup or load pools
+  setupPools(d);
+  roundTitle.textContent = `Domain: ${d}`; roundDesc.textContent = `Start with Aptitude. Questions randomized per domain.`; roundState.textContent='Ready';
+  speak(`${d} selected. Start with the aptitude round.`);
+  updateScoresDisplay();
+  enableButtons();
+}
+
+function setupPools(domain, force=false){
+  const loaded = loadPools(domain);
+  if(loaded && !force){ state.pools = loaded; }
+  else {
+    const raw = QUESTION_POOLS[domain];
+    const pools = {
+      aptitude: shuffle(raw.aptitude || []).slice(0, state.totalPerRound[1]),
+      technical: shuffle(raw.technical || []).slice(0, state.totalPerRound[2]),
+      hr: shuffle(raw.hr || []).slice(0, state.totalPerRound[4])
+    };
+    state.pools = pools;
+    persistPools(domain, pools);
+  }
+  state.indexes = {1:0,2:0,3:0,4:0};
+  state.scores = {1:0,2:0,3:0,4:0};
+  state.currentRound = 0;
+  codingCard.style.display='none';
+  hrCardArea.style.display='none';
+  enableButtons();
+  updateScoresDisplay();
+}
+
+/* ========= Round flow ========= */
+function startRound(round){
+  if(!state.domain) return alert('Choose a domain first.');
+  if(round>1){
+    if(!passedRound(round-1)) return alert(`You must pass ${roundName(round-1)} first.`);
+  }
+  state.currentRound = round;
+  roundTitle.textContent = `${roundName(round)} — ${state.domain}`;
+  roundState.textContent = `${roundName(round)} started`;
+  renderForRound(round);
+  enableButtons();
+}
+
+function roundName(r){ return {1:'Aptitude',2:'Technical',3:'Coding',4:'HR'}[r] || 'Unknown'; }
+function passedRound(r){
+  if(r===3) return !!state.scores[3]; // coding uses boolean pass
+  const got = state.scores[r] || 0; const total = state.totalPerRound[r] || 1;
+  return Math.round((got/total)*100) >= state.passingPercent[r];
+}
+function enableButtons(){
+  startA.disabled = !state.domain;
+  startT.disabled = !passedRound(1);
+  startC.disabled = !passedRound(2);
+  startH.disabled = !passedRound(3);
+  // update left progress locked class
+  document.querySelectorAll('.progress-list .round-pill').forEach(el=>{
+    const r = parseInt(el.dataset.round,10);
+    if(r===1) el.classList.toggle('locked', false);
+    else el.classList.toggle('locked', !passedRound(r-1));
+  });
+  codingCard.style.display = state.currentRound===3 ? 'block' : 'none';
+  hrCardArea.style.display = state.currentRound===4 ? 'block' : 'none';
+}
+
+/* ========= Rendering ========= */
+function renderForRound(r){
+  if(r===1 || r===2){
+    renderMCQ(r);
+  } else if(r===3){
+    renderCodingRound();
+  } else if(r===4){
+    renderHR();
+  }
+}
+
+function renderMCQ(round){
+  const poolKey = (round===1?'aptitude':'technical');
+  const pool = state.pools[poolKey] || [];
+  const idx = state.indexes[round] || 0;
+  if(idx >= pool.length){
+    areaContent.innerHTML = `<h3>${roundName(round)} completed</h3><p class="muted">You answered all questions for this round.</p>`;
+    evaluateRoundCompletion(round); enableButtons(); return;
+  }
+  const q = pool[idx];
+  if(!q){ areaContent.innerHTML = `<h3>No questions configured</h3>`; return; }
+  // build UI
+  let optsHtml = q.options.map((o,i)=>`<div class="option" data-opt="${i}"><div>${String.fromCharCode(65+i)}. ${o}</div><div class="tiny muted">Select</div></div>`).join('');
+  areaContent.innerHTML = `
+    <h3>${roundName(round)} — Question ${idx+1}/${pool.length}</h3>
+    <div class="question-area">
+      <div class="question-box"><strong>${q.q}</strong></div>
+      <div class="answers">${optsHtml}</div>
+      <div class="controls-row">
+        <div class="voice-btn btn" id="voiceBtn">🎤 Answer by voice</div>
+        <div class="tiny muted">Select the correct option. Correct answers increase your score.</div>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('.option').forEach(el=>{
+    el.onclick = ()=> {
+      const chosen = parseInt(el.dataset.opt,10); const correct = q.a;
+      const isCorrect = chosen === correct;
+      if(isCorrect) el.classList.add('correct'); else el.classList.add('wrong');
+      // reveal correct option
+      document.querySelectorAll('.option').forEach(o=>{ const i=parseInt(o.dataset.opt,10); if(i===correct) o.classList.add('correct'); });
+      if(isCorrect){ state.scores[round] = (state.scores[round]||0)+1; speak('Correct!'); } else speak('Incorrect.');
+      state.indexes[round] = (state.indexes[round]||0) + 1;
+      updateScoresDisplay();
+      setTimeout(()=>{ if(state.indexes[round] < pool.length) renderMCQ(round); else evaluateRoundCompletion(round); enableButtons(); }, 900);
+    };
+  });
+  document.getElementById('voiceBtn').onclick = ()=> startVoiceAnswer(q);
+}
+
+function evaluateRoundCompletion(round){
+  if(round===3){
+    // coding handled separately
+    return;
+  }
+  const total = state.totalPerRound[round] || 1;
+  const got = state.scores[round] || 0;
+  const pct = Math.round((got/total)*100);
+  if(pct >= state.passingPercent[round]){
+    roundState.textContent = `${roundName(round)} Passed`;
+    speak(`You passed the ${roundName(round)} round with ${pct} percent.`);
+    alert(`Passed ${roundName(round)} — ${pct}%`);
+  } else {
+    roundState.textContent = `${roundName(round)} Failed`;
+    speak(`You did not pass ${roundName(round)}. Score ${pct} percent.`);
+    alert(`Failed ${roundName(round)} — ${pct}%. Try again or shuffle pools.`);
+  }
+  state.currentRound = 0;
+  enableButtons();
+  renderSummary();
+}
+
+function renderSummary(){
+  areaContent.innerHTML = `
+    <h3>Progress Summary</h3>
+    <p class="muted">Aptitude: ${state.scores[1]||0}/${state.totalPerRound[1]} • Technical: ${state.scores[2]||0}/${state.totalPerRound[2]} • Coding: ${state.scores[3]?1:0}/${state.totalPerRound[3]} • HR: ${state.scores[4]||0}/${state.totalPerRound[4]}</p>
+    <div style="margin-top:8px"><button class="btn" id="contBtn">Continue</button></div>
+  `;
+  document.getElementById('contBtn').onclick = ()=> { areaContent.innerHTML = `<h3>Ready</h3><p class="muted">Choose next round.</p>`; };
+}
+
+/* ========= Coding Round ========= */
+const codingExpected = "True"; // expected output for the palindrome example (for demo)
+function renderCodingRound(){
+  // show coding card (already visible when currentRound===3)
+  areaContent.innerHTML = `
+    <h3>Coding Round — Paste Programiz output to validate</h3>
+    <p class="muted">Open Programiz (embedded) and run your code. Paste the exact console output below.</p>
+  `;
+  // Show coding card UI area (it is a separate card DOM element)
+  codingCard.style.display='block';
+  enableButtons();
+}
+
+/* Verify coding output pasted by user */
+function verifyCodingOutput(){
+  const txt = programizOutput.value.trim();
+  if(!txt) { verifyMsg.textContent = 'Please paste the Programiz console output.'; verifyMsg.style.color='orange'; return; }
+  // Compare normalized
+  if(txt.toLowerCase() === codingExpected.toLowerCase()){
+    verifyMsg.textContent = 'Correct output! Coding round passed.';
+    verifyMsg.style.color='limegreen';
+    state.scores[3] = 1; state.indexes[3] = 1;
+    roundState.textContent = 'Coding Passed';
+    speak('Coding round passed. You can now start HR.');
+    updateScoresDisplay(); enableButtons(); renderSummary();
+  } else {
+    verifyMsg.textContent = 'Output did not match expected. Make sure you ran the correct test and paste exact output (case-sensitive).';
+    verifyMsg.style.color='salmon';
+    speak('Output did not match.');
+  }
+}
+
+/* Copy example code to clipboard for user */
+function copyExampleCode(){
+  const example = `# Python (example for Programiz)
+def solution(s):
+    return s == s[::-1]
+
+print(solution("aba"))  # Expected: True
+print(solution("abc"))  # Expected: False`;
+  navigator.clipboard.writeText(example).then(()=> alert('Example code copied to clipboard — paste in Programiz.'), ()=> alert('Copy failed — please select & copy manually.'));
+}
+
+/* ========= HR Round ========= */
+function renderHR(){
+  areaContent.innerHTML = `<h3>HR Round</h3><p class="muted">Answer the open questions — you can type or use voice. We'll auto-evaluate with simple keyword heuristics for demo purposes.</p>`;
+  const hrPool = state.pools.hr || [];
+  hrQuestionArea.innerHTML = '';
+  hrPool.forEach((q, i)=>{
+    const wrapper = document.createElement('div'); wrapper.style.marginTop='12px';
+    const label = document.createElement('div'); label.innerHTML = `<strong>Q${i+1}:</strong> ${q.q}`;
+    const ta = document.createElement('textarea'); ta.rows=4; ta.style.width='100%'; ta.style.marginTop='8px';
+    ta.id = `hr_ans_${i}`;
+    const voiceBtn = document.createElement('button'); voiceBtn.className='btn'; voiceBtn.textContent='🎤 Speak'; voiceBtn.style.marginTop='8px';
+    voiceBtn.onclick = ()=> startVoiceCaptureForHR(ta);
+    wrapper.appendChild(label); wrapper.appendChild(ta); wrapper.appendChild(voiceBtn);
+    hrQuestionArea.appendChild(wrapper);
+  });
+  enableButtons();
+}
+
+/* Simple auto-eval for HR: check keywords and length */
+function autoEvaluateHR(){
+  const hrPool = state.pools.hr || [];
+  let score = 0;
+  for(let i=0;i<hrPool.length;i++){
+    const q = hrPool[i]; const text = document.getElementById(`hr_ans_${i}`).value.trim().toLowerCase();
+    if(text.length < 15) continue;
+    if(q.keywords && q.keywords.length>0){
+      let matches = 0;
+      for(const k of q.keywords) if(text.includes(k)) matches++;
+      if(matches >= 1) score++;
+    } else {
+      score++;
+    }
+  }
+  state.scores[4] = score;
+  updateScoresDisplay();
+  const pct = Math.round((score / hrPool.length) * 100);
+  if(pct >= state.passingPercent[4]){ roundState.textContent = 'HR Passed'; speak('Congratulations! You passed the HR round.'); alert('HR Passed — '+pct+'%'); } else { roundState.textContent='HR Failed'; speak('You did not pass HR round.'); alert('HR Failed — '+pct+'%'); }
+  state.currentRound = 0;
+  enableButtons();
+  renderSummary();
+}
+document.getElementById('submitHR').onclick = autoEvaluateHR;
+
+/* ========= Voice support ========= */
+function initSpeech(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  if(!SpeechRecognition){ console.log('No SpeechRecognition'); return; }
+  state.recognition = new SpeechRecognition();
+  state.recognition.lang='en-US'; state.recognition.interimResults=false; state.recognition.maxAlternatives=1;
+}
+
+/* Voice capture for MCQ: picks option letter/keyword */
+function startVoiceAnswer(question){
+  if(!state.recognition) return alert('Voice not supported in this browser.');
+  speak('Please say the option letter or the option text.');
+  state.recognition.onresult = (e)=>{
+    const t = e.results[0][0].transcript.toLowerCase();
+    // attempt to map to choice
+    let map = {'a':0,'b':1,'c':2,'d':3};
+    let chosen = null;
+    for(const k in map){ if(t.includes(k)) { chosen = map[k]; break; } }
+    if(chosen===null){
+      for(let i=0;i<question.options.length;i++){
+        const token = question.options[i].split(' ')[0].toLowerCase();
+        if(t.includes(token)) { chosen = i; break; }
+      }
+    }
+    if(chosen===null){ alert('Could not detect option from speech. Try again.'); return; }
+    // simulate click: find option in DOM
+    const el = document.querySelector(`.option[data-opt="${chosen}"]`);
+    if(el) el.click();
+  };
+  state.recognition.onerror = (err)=>{ console.error(err); alert('Voice error: '+err.error); };
+  state.recognition.start();
+}
+
+/* Voice capture for HR textareas */
+function startVoiceCaptureForHR(textareaEl){
+  if(!state.recognition) return alert('Voice not supported in this browser.');
+  speak('Speak your answer now.');
+  state.recognition.onresult = (e)=>{
+    const t = e.results[0][0].transcript;
+    textareaEl.value = (textareaEl.value?textareaEl.value+' ':'') + t;
+    speak('Captured.');
+  };
+  state.recognition.onerror = (err)=>{ console.error(err); alert('Voice error: '+err.error); };
+  state.recognition.start();
+}
+
+/* ========= Helpers ========= */
+function updateScoresDisplay(){
+  scoreA.textContent = `${state.scores[1]||0}`;
+  scoreT.textContent = `${state.scores[2]||0}`;
+  scoreC.textContent = `${state.scores[3]?1:0}`;
+  scoreH.textContent = `${state.scores[4]||0}`;
+  const total = (state.scores[1]||0)+(state.scores[2]||0)+(state.scores[3]?1:0)+(state.scores[4]||0);
+  overallScore.textContent = `Score: ${total}`;
+}
+
+/* ========= Reset ========= */
+function resetAll(){
+  if(!confirm('Reset progress and clear saved question pools for this domain?')) return;
+  if(state.domain) localStorage.removeItem(storageKey(state.domain));
+  state.indexes={1:0,2:0,3:0,4:0};
+  state.scores={1:0,2:0,3:0,4:0};
+  updateScoresDisplay();
+  areaContent.innerHTML = `<h3>Progress reset</h3><p class="muted">Choose a domain to start again.</p>`;
+}
+
+/* ========= Theme ========= */
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const next = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next === 'light' ? 'light' : 'dark');
+  themeToggle.textContent = next==='light' ? '☀️ Light' : '🌙 Dark';
+  persistTheme(next);
+}
+
+/* ========= On load ========= */
+(function(){
+  // default select first domain
+  selectDomain(DOMAINS[0]);
+  setupPools(DOMAINS[0]);
+  enableButtons();
+  // load theme
+  const t = loadTheme(); document.documentElement.setAttribute('data-theme', t==='light'?'light':'dark');
+})();
+</script>
+</body>
+</html>

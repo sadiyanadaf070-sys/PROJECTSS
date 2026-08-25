@@ -1,0 +1,85 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Leaflet maps css variables */
+@import 'leaflet/dist/leaflet.css';
+
+@layer base {
+  :root {
+    --bg-gradient-start: #f8fafc;
+    --bg-gradient-end: #eff6ff;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(226, 232, 240, 0.8);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+  }
+
+  .dark {
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #020617;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(51, 65, 85, 0.5);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  body {
+    @apply font-sans transition-colors duration-300;
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+  }
+}
+
+/* Glassmorphism Panel styles */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1rem;
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Custom Scrollbar for dashboards */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+/* Leaflet maps popup adjustment */
+.leaflet-popup-content-wrapper {
+  background: var(--glass-bg) !important;
+  color: var(--text-primary) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.75rem !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--glass-bg) !important;
+}

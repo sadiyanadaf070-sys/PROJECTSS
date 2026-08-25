@@ -1,0 +1,5 @@
+City,Temperature (C),Wind Speed (km/h),Status Code
+Bangalore,20.9,14.3,200 OK
+London,22.2,22.7,200 OK
+New York,24.0,12.0,200 OK
+Tokyo,25.5,3.7,200 OK

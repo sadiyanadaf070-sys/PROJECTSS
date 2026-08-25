@@ -1,0 +1,12 @@
+{
+  "name": "pulse-app",
+  "version": "1.0.0",
+  "description": "PULSE — global domain & company intelligence app, with a local proxy for the Claude API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
