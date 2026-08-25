@@ -1,0 +1,10 @@
+Flask
+Flask-Cors
+PyJWT
+bcrypt
+opencv-python
+numpy
+scikit-learn
+pillow
+reportlab
+pymongo
