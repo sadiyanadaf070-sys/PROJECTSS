@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .calculator{
+            text-align: center;
+             
+            border: 2px solid black;
+            width: 400px;
+            height: 500px;
+             
+            border-radius: 10px;
+            background-color: lightblue;
+        }
+        input{
+            margin: 10px;
+            height: 30px;
+            width: 200px;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .button{
+            margin: 20px;
+        }
+        button{
+            height: 30px;
+            width: 80px;
+            border-radius: 5px;
+            margin: 5px;
+            cursor: pointer;
+            border: solid black;
+        }
+        button:hover{
+            background-color: rgb(34, 42, 45);
+            color: white;
+        }
+        </style>
+    
+    
+</head>
+<body>
+    <center>
+    <div class="calculator"> 
+    <h1>Calculator</h1>
+    <input type="number" id="num1" placeholder="enter the number">
+    <input type="number" id="num2" placeholder="enter the number">
+        <div class="button">
+        <button onclick="cal('sum')">sum</button>
+        <button onclick="cal('sub') ">sub</button>
+        <button onclick="cal('mul')">mul</button>
+        <button onclick="cal('remain')">remain</button>
+        <button onclick="cal('quo')">quo</button>
+        <button onclick="cal('power')">power</button>
+        <button onclick="cal('sq')">sq</button>
+        <button onclick="cal('sqr')">sqr</button>
+        </div>
+        <h2 id="result">Result:</h2>
+    </div>
+    <script>
+        function cal(op)
+{
+    const a = parseFloat(document.getElementById("num1").value);
+    const b = parseFloat(document.getElementById("num2").value);
+    let result1;
+   
+    switch(op)
+    {
+        case 'sum': 
+            result1 = a + b;
+            break;
+        case 'sub': result1 = a - b; break;
+        case 'mul': result1= a * b; break;      
+        case 'remain': result1 = a % b; break;
+        case 'quo': result1 = Math.floor(a/b) ; break;
+        case 'power': result1 =Math.pow(a,b) ; break;
+        case 'sq': result1 =Math.sqrt(a); break;
+        case 'sqr': result1 = Math.pow(num1,1/num2); break;
+        }
+    document.getElementById('result').textContent =`Result:${result1}`;
+}
+    </script>
+    </center>
+</body>
+</html>
